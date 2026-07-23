@@ -1,8 +1,171 @@
-<html>
-  <head>
-    <title>YH Home</title>
-  </head>
-  <body>
-    <h1>my home</h1>
-  </body>
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>카페 메뉴 찾기</title>
+  <style>
+    :root {
+      --ink: #2f241f;
+      --muted: #88766d;
+      --cream: #f8f4ee;
+      --paper: #fffdf9;
+      --coffee: #7b4f35;
+      --coffee-dark: #523322;
+      --line: #eadfd5;
+      --mint: #dceee6;
+      --shadow: 0 18px 45px rgba(77, 47, 30, .10);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--cream);
+      font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    .shell { max-width: 1180px; margin: 0 auto; padding: 0 24px 56px; }
+
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 24px 0;
+    }
+    .brand { display: flex; align-items: center; gap: 11px; font-weight: 800; letter-spacing: -.04em; }
+    .brand-mark {
+      width: 38px; height: 38px; display: grid; place-items: center; border-radius: 13px;
+      color: white; background: var(--coffee); font-size: 20px;
+    }
+    .brand span { color: var(--coffee); }
+    .location {
+      border: 1px solid var(--line); border-radius: 999px; background: var(--paper);
+      padding: 10px 15px; color: var(--muted); font-size: 13px;
+    }
+
+    .hero {
+      position: relative; overflow: hidden; border-radius: 28px; padding: 58px clamp(28px, 7vw, 78px);
+      background: linear-gradient(115deg, #f1dfcc, #f9eee4 53%, #e2eee8); box-shadow: var(--shadow);
+    }
+    .hero::after { content: "☕"; position: absolute; right: 7%; bottom: -28px; font-size: 180px; opacity: .12; transform: rotate(-10deg); }
+    .eyebrow { color: var(--coffee); font-size: 13px; font-weight: 800; letter-spacing: .12em; }
+    h1 { max-width: 560px; margin: 14px 0 13px; font-size: clamp(35px, 5vw, 62px); line-height: 1.08; letter-spacing: -.07em; }
+    .hero p { max-width: 500px; margin: 0; color: #745e51; line-height: 1.7; }
+    .search-box {
+      position: relative; z-index: 1; display: flex; max-width: 650px; gap: 9px; margin-top: 28px;
+      padding: 7px; border: 1px solid rgba(123,79,53,.15); border-radius: 17px; background: rgba(255,253,249,.88);
+    }
+    .search-box input { min-width: 0; flex: 1; border: 0; outline: 0; padding: 13px 14px; color: var(--ink); background: transparent; }
+    .search-box button { border: 0; border-radius: 12px; padding: 0 20px; color: white; background: var(--coffee); font-weight: 700; }
+    .search-box button:hover { background: var(--coffee-dark); }
+
+    .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 42px 0 18px; }
+    .toolbar h2 { margin: 0; font-size: 22px; letter-spacing: -.04em; }
+    .controls { display: flex; gap: 8px; }
+    select { border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; color: var(--muted); background: var(--paper); outline: none; }
+    .summary { margin: 0 0 20px; color: var(--muted); font-size: 14px; }
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .card { overflow: hidden; border: 1px solid var(--line); border-radius: 18px; background: var(--paper); box-shadow: 0 7px 20px rgba(77,47,30,.045); transition: transform .2s, box-shadow .2s; }
+    .card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+    .cover { display: flex; align-items: flex-end; height: 125px; padding: 17px; background: linear-gradient(135deg, #b8815c, #e8c7a6); }
+    .card:nth-child(3n+2) .cover { background: linear-gradient(135deg, #789889, #c7ded1); }
+    .card:nth-child(3n) .cover { background: linear-gradient(135deg, #a87b88, #e3c6ce); }
+    .cover-icon { font-size: 42px; filter: drop-shadow(0 4px 4px rgba(0,0,0,.12)); }
+    .card-body { padding: 17px; }
+    .card-title { display: flex; align-items: start; justify-content: space-between; gap: 10px; }
+    .card h3 { margin: 0; font-size: 18px; letter-spacing: -.04em; }
+    .distance { flex: none; padding: 5px 8px; border-radius: 999px; color: var(--coffee); background: #f5e8dc; font-size: 11px; font-weight: 700; }
+    .address { overflow: hidden; margin: 9px 0 15px; color: var(--muted); font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
+    .menu { display: flex; flex-wrap: wrap; gap: 7px; padding-top: 13px; border-top: 1px solid var(--line); }
+    .menu span { padding: 7px 9px; border-radius: 8px; color: #675249; background: #f7f1eb; font-size: 12px; }
+    .menu b { color: var(--coffee-dark); }
+    .empty { grid-column: 1 / -1; padding: 55px 20px; text-align: center; color: var(--muted); }
+    footer { margin-top: 42px; color: #a08d82; text-align: center; font-size: 12px; }
+
+    @media (max-width: 780px) {
+      header { padding-top: 17px; }
+      .location { display: none; }
+      .hero { padding: 40px 25px; border-radius: 22px; }
+      .hero::after { right: -12px; font-size: 125px; }
+      .search-box { display: block; padding: 7px; }
+      .search-box button { width: 100%; height: 44px; }
+      .toolbar { align-items: flex-start; flex-direction: column; margin-top: 32px; }
+      .cards { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div class="brand"><div class="brand-mark">☕</div><div>cafe <span>finder</span></div></div>
+      <div class="location">📍 인천광역시 송도동 · 반경 1km</div>
+    </header>
+
+    <section class="hero">
+      <div class="eyebrow">YOUR DAILY COFFEE GUIDE</div>
+      <h1>오늘은 어떤 카페를<br />찾고 있나요?</h1>
+      <p>내 주변 카페를 한눈에 보고, 인기 메뉴와 가격까지 빠르게 확인해 보세요.</p>
+      <div class="search-box">
+        <input id="searchInput" type="search" placeholder="카페명 또는 메뉴를 검색해 보세요" aria-label="카페 또는 메뉴 검색" />
+        <button id="searchButton">카페 찾기</button>
+      </div>
+    </section>
+
+    <section>
+      <div class="toolbar">
+        <h2>내 주변 카페</h2>
+        <div class="controls">
+          <select id="sortSelect" aria-label="정렬 방식">
+            <option value="distance">거리순</option>
+            <option value="rating">인기순</option>
+          </select>
+        </div>
+      </div>
+      <p class="summary" id="summary">총 6개의 카페를 찾았어요</p>
+      <div class="cards" id="cards"></div>
+    </section>
+    <footer>카카오맵 API 연동 전 미리보기 데모입니다 · 실제 데이터로 쉽게 교체할 수 있어요</footer>
+  </main>
+
+  <script>
+    const cafes = [
+      { name: '라운드어바웃 커피', address: '인천 연수구 센트럴로 160', distance: 230, rating: 4.9, icon: '☕', menu: [['아메리카노', '4,500원'], ['바닐라라떼', '5,500원']] },
+      { name: '브루밍 카페', address: '인천 연수구 아트센터대로 87', distance: 410, rating: 4.8, icon: '🌿', menu: [['카페라떼', '5,000원'], ['소금빵', '3,800원']] },
+      { name: '오후의 정원', address: '인천 연수구 컨벤시아대로 100', distance: 570, rating: 4.7, icon: '🌸', menu: [['아인슈페너', '6,000원'], ['말차케이크', '6,500원']] },
+      { name: '카페 모먼트', address: '인천 연수구 송도과학로 32', distance: 720, rating: 4.6, icon: '📷', menu: [['콜드브루', '5,000원'], ['티라미수', '6,000원']] },
+      { name: '페이지 커피하우스', address: '인천 연수구 해돋이로 107', distance: 840, rating: 4.5, icon: '📖', menu: [['드립커피', '5,500원'], ['레몬케이크', '5,800원']] },
+      { name: '소소한 로스터리', address: '인천 연수구 송도동 21-15', distance: 960, rating: 4.4, icon: '🫘', menu: [['오늘의 원두', '5,000원'], ['크림라떼', '5,800원']] }
+    ];
+
+    const cards = document.querySelector('#cards');
+    const summary = document.querySelector('#summary');
+    const searchInput = document.querySelector('#searchInput');
+    const sortSelect = document.querySelector('#sortSelect');
+
+    function render() {
+      const keyword = searchInput.value.trim().toLowerCase();
+      const sort = sortSelect.value;
+      const result = cafes.filter(cafe =>
+        cafe.name.toLowerCase().includes(keyword) || cafe.menu.some(([menu]) => menu.toLowerCase().includes(keyword))
+      ).sort((a, b) => sort === 'rating' ? b.rating - a.rating : a.distance - b.distance);
+
+      summary.textContent = `총 ${result.length}개의 카페를 찾았어요`;
+      cards.innerHTML = result.length ? result.map(cafe => `
+        <article class="card">
+          <div class="cover"><span class="cover-icon">${cafe.icon}</span></div>
+          <div class="card-body">
+            <div class="card-title"><h3>${cafe.name}</h3><span class="distance">${cafe.distance}m</span></div>
+            <p class="address">${cafe.address} · ⭐ ${cafe.rating}</p>
+            <div class="menu">${cafe.menu.map(([name, price]) => `<span>${name} <b>${price}</b></span>`).join('')}</div>
+          </div>
+        </article>
+      `).join('') : '<div class="empty">검색 결과가 없어요.<br />다른 카페명이나 메뉴를 검색해 보세요.</div>';
+    }
+
+    document.querySelector('#searchButton').addEventListener('click', render);
+    searchInput.addEventListener('input', render);
+    sortSelect.addEventListener('change', render);
+    render();
+  </script>
+</body>
 </html>
